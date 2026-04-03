@@ -1,4 +1,3 @@
-
 package com.proyecto.ui;
 
 import com.proyecto.model.Automata;
@@ -8,8 +7,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.nio.file.Files;
 
-// Panel para la carga de autómatas desde archivos .json
 public class PanelCargarArchivo extends JPanel {
 
     private InterfazUsuario controlador;
@@ -65,10 +64,10 @@ public class PanelCargarArchivo extends JPanel {
         panelPrevia.add(scroll, BorderLayout.CENTER);
 
         // --- Panel inferior: botón cargar ---
-        JButton btnCargar = new JButton("Cargar Autómata");
+        JButton btnCargar = new JButton("Cargar Autómata al Formulario");
         btnCargar.setBackground(EstilosUI.COLOR_BOTON);
         btnCargar.setFont(EstilosUI.FUENTE_TITULOS);
-        btnCargar.setPreferredSize(new Dimension(220, 45));
+        btnCargar.setPreferredSize(new Dimension(280, 45));
         btnCargar.setFocusable(false);
 
         btnCargar.addActionListener(e -> cargarAutomata());
@@ -92,7 +91,7 @@ public class PanelCargarArchivo extends JPanel {
             archivoSeleccionado = chooser.getSelectedFile();
             lblArchivoSeleccionado.setText(archivoSeleccionado.getAbsolutePath());
             try {
-                String contenido = new String(java.nio.file.Files.readAllBytes(archivoSeleccionado.toPath()));
+                String contenido = new String(Files.readAllBytes(archivoSeleccionado.toPath()));
                 txtVistaPrevia.setText(contenido);
             } catch (Exception ex) {
                 txtVistaPrevia.setText("Error al leer el archivo: " + ex.getMessage());
@@ -103,30 +102,67 @@ public class PanelCargarArchivo extends JPanel {
     private void cargarAutomata() {
         if (archivoSeleccionado == null) {
             JOptionPane.showMessageDialog(controlador.getFrame(),
-                    "Primero seleccione un archivo .json.", "Sin archivo", JOptionPane.WARNING_MESSAGE);
+                    "Primero seleccione un archivo .json", "Sin archivo", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
         try {
+            // Leer el archivo
             Automata automata = GestorArchivos.importar(archivoSeleccionado);
 
-            // Validar antes de aceptar
+            // --- VALIDACIONES ESTRUCTURALES ---
+            if (automata == null) {
+                throw new Exception("El archivo no pudo mapearse a un autómata válido.");
+            }
+            if (automata.getTipo() == null) {
+                throw new Exception("No se especificó el tipo de autómata (AFD o AFN).");
+            }
+            if (automata.getEstados() == null || automata.getEstados().isEmpty()) {
+                throw new Exception("El archivo no contiene estados definidos.");
+            }
+            if (automata.getAlfabeto() == null || automata.getAlfabeto().isEmpty()) {
+                throw new Exception("El alfabeto está vacío o es nulo en el archivo.");
+            }
+            if (automata.getEstadoInicial() == null || automata.getEstadoInicial().trim().isEmpty()) {
+                throw new Exception("No se definió un estado inicial en el archivo.");
+            }
+            if (automata.getTransiciones() == null || automata.getTransiciones().isEmpty()) {
+                throw new Exception("No se encontraron transiciones en el archivo.");
+            }
+            
+            // Los estados de aceptación pueden ser cero, pero evitamos que la lista sea nula
+            if (automata.getEstadosAceptacion() == null) {
+                automata.setEstadosAceptacion(new java.util.ArrayList<>());
+            }
+            // -------------------------------------------------------------------------
+
+            // Validar la lógica matemática en el motor (estados inalcanzables, no determinismo, etc.)
             var resultado = controlador.getMotor().validarDefinicionAutomata(automata);
             if (!resultado.esAceptada()) {
                 JOptionPane.showMessageDialog(controlador.getFrame(),
-                        "El archivo tiene errores:\n" + resultado.trazaPasoAPaso(),
+                        "El archivo tiene inconsistencias lógicas:\n" + resultado.trazaPasoAPaso(),
                         "Autómata inválido", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
+            // 1. Guardar en el estado global de la app
             controlador.setAutomataActual(automata);
+
+            // 2. Llenar el formulario automáticamente
+            controlador.getPanelCrearAutomata().llenarFormulario(automata);
+
+            // 3. Mostrar mensaje de éxito
             JOptionPane.showMessageDialog(controlador.getFrame(),
-                    "Autómata cargado correctamente desde:\n" + archivoSeleccionado.getName(),
+                    "¡Éxito! Los datos han sido cargados en la pestaña 'Crear Autómata'.",
                     "Carga exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+            // 4. Cambiar de pestaña automáticamente (es mejor hacerlo después del JOptionPane)
+            controlador.irAPestanaCrear();
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(controlador.getFrame(),
-                    "Error al cargar el archivo:\n" + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error estructural en el JSON:\n" + ex.getMessage(),
+                    "Error de Archivo", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

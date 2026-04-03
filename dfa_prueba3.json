@@ -1,0 +1,67 @@
+{
+  "tipo": "AFN",
+  "estados": [
+    {
+      "nombre": "q0"
+    },
+    {
+      "nombre": "q1"
+    },
+    {
+      "nombre": "q2"
+    },
+    {
+      "nombre": "q3"
+    }
+  ],
+  "alfabeto": [
+    "a",
+    "b"
+  ],
+  "transiciones": [
+    {
+      "estadoOrigen": "q0",
+      "simbolo": "a",
+      "estadoDestino": "q1"
+    },
+    {
+      "estadoOrigen": "q0",
+      "simbolo": "b",
+      "estadoDestino": "q2"
+    },
+    {
+      "estadoOrigen": "q1",
+      "simbolo": "a",
+      "estadoDestino": "q1"
+    },
+    {
+      "estadoOrigen": "q1",
+      "simbolo": "b",
+      "estadoDestino": "q3"
+    },
+    {
+      "estadoOrigen": "q1",
+      "simbolo": "b",
+      "estadoDestino": "q1"
+    },
+    {
+      "estadoOrigen": "q2",
+      "simbolo": "a",
+      "estadoDestino": "q3"
+    },
+    {
+      "estadoOrigen": "q2",
+      "simbolo": "b",
+      "estadoDestino": "q2"
+    },
+    {
+      "estadoOrigen": "q2",
+      "simbolo": "a",
+      "estadoDestino": "q2"
+    }
+  ],
+  "estadoInicial": "q0",
+  "estadosAceptacion": [
+    "q3"
+  ]
+}
