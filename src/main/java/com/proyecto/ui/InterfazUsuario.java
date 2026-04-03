@@ -64,7 +64,7 @@ public class InterfazUsuario {
 
         // Integración de los paneles separados
         tabbedPane.addTab("Crear Autómata", new PanelCrearAutomata(this));
-        tabbedPane.addTab("Cargar Archivo", new PanelCargarArchivo());
+        tabbedPane.addTab("Cargar Archivo", new PanelCargarArchivo(this));
         tabbedPane.addTab("Evaluar Lote", new PanelEvaluarLote(this));
         tabbedPane.addTab("Trazabilidad", new PanelTrazabilidad(this));
 

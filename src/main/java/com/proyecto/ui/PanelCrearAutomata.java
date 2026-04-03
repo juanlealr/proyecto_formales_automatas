@@ -5,10 +5,13 @@ import com.proyecto.model.Automata;
 import com.proyecto.model.Estado;
 import com.proyecto.model.TipoAutomata;
 import com.proyecto.model.Transicion;
+import com.proyecto.persistence.GestorArchivos;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,9 +120,45 @@ public class PanelCrearAutomata extends JPanel {
         add(formPanel, BorderLayout.NORTH);
         add(transicionesPanel, BorderLayout.CENTER);
 
-        JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15));
+        // Botón exportar
+        JButton btnExportar = new JButton("Exportar a JSON");
+        btnExportar.setBackground(EstilosUI.COLOR_BOTON);
+        btnExportar.setFont(EstilosUI.FUENTE_TITULOS);
+        btnExportar.setPreferredSize(new Dimension(220, 45));
+        btnExportar.setFocusable(false);
+
+        btnExportar.addActionListener(e -> {
+            Automata actual = controlador.getAutomataActual();
+            if (actual == null) {
+                JOptionPane.showMessageDialog(controlador.getFrame(),
+                        "Primero guarda y valida un autómata.", "Sin autómata", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Guardar autómata como JSON");
+            chooser.setFileFilter(new FileNameExtensionFilter("Archivos JSON (*.json)", "json"));
+            chooser.setSelectedFile(new File("automata.json"));
+            if (chooser.showSaveDialog(controlador.getFrame()) == JFileChooser.APPROVE_OPTION) {
+                File destino = chooser.getSelectedFile();
+                if (!destino.getName().endsWith(".json")) {
+                    destino = new File(destino.getAbsolutePath() + ".json");
+                }
+                try {
+                    GestorArchivos.exportar(actual, destino);
+                    JOptionPane.showMessageDialog(controlador.getFrame(),
+                            "Autómata guardado en:\n" + destino.getAbsolutePath(),
+                            "Exportación exitosa", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(controlador.getFrame(),
+                            "Error al guardar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
         panelBoton.setBackground(EstilosUI.COLOR_FONDO_PANEL);
         panelBoton.add(btnValidar);
+        panelBoton.add(btnExportar);
         add(panelBoton, BorderLayout.SOUTH);
     }
 }

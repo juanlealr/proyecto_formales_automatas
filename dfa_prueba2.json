@@ -1,0 +1,22 @@
+{
+  "tipo": "AFD",
+  "estados": [
+    {"nombre": "q0"},
+    {"nombre": "q1"},
+    {"nombre": "q2"},
+    {"nombre": "q3"}
+  ],
+  "alfabeto": ["0", "1"],
+  "transiciones": [
+    {"estadoOrigen": "q0", "simbolo": "0", "estadoDestino": "q1"},
+    {"estadoOrigen": "q0", "simbolo": "1", "estadoDestino": "q3"},
+    {"estadoOrigen": "q1", "simbolo": "0", "estadoDestino": "q2"},
+    {"estadoOrigen": "q1", "simbolo": "1", "estadoDestino": "q0"},
+    {"estadoOrigen": "q2", "simbolo": "0", "estadoDestino": "q3"},
+    {"estadoOrigen": "q2", "simbolo": "1", "estadoDestino": "q1"},
+    {"estadoOrigen": "q3", "simbolo": "0", "estadoDestino": "q0"},
+    {"estadoOrigen": "q3", "simbolo": "1", "estadoDestino": "q2"}
+  ],
+  "estadoInicial": "q0",
+  "estadosAceptacion": ["q0"]
+}
