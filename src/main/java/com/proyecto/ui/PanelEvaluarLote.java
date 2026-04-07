@@ -80,7 +80,7 @@ public class PanelEvaluarLote extends JPanel {
             for (String s : lineas) {
                 String c = s.trim();
                 
-                // AQUÍ ESTÁ LA MAGIA: Si la línea está vacía, la convertimos en "E" 
+                // Si la línea está vacía, la convertimos en "E" 
                 // para que nuestro MotorEvaluacion la entienda como épsilon (cadena vacía)
                 if (c.isEmpty()) {
                     c = "E";

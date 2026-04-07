@@ -107,7 +107,7 @@ public class PanelCrearAutomata extends JPanel {
         add(panelBoton, BorderLayout.SOUTH);
     }
 
-    // MÉTODO CLAVE: Llena los campos de texto con un objeto Automata
+    // Llena los campos de texto con un objeto Automata al cargar archivo
     public void llenarFormulario(Automata automata) {
         if (automata == null) return;
 
