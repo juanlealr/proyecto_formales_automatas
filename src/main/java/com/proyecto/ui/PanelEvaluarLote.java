@@ -67,25 +67,43 @@ public class PanelEvaluarLote extends JPanel {
                 JOptionPane.showMessageDialog(controlador.getFrame(), "Primero debes crear o cargar un autómata.");
                 return;
             }
-            String texto = txtCadenas.getText().trim();
-            if (texto.isEmpty()) return;
-
-            String[] lineas = texto.split("\n");
+            
+            // Usamos split con un límite negativo para que detecte líneas en blanco al final
+            String[] lineas = txtCadenas.getText().split("\n", -1);
             StringBuilder sb = new StringBuilder();
 
-            // Limpia el ComboBox de la otra pestaña usando el controlador
+            // Limpia el ComboBox de la otra pestaña
             controlador.getCbCadenasTraza().removeAllItems();
+
+            boolean hayCadenas = false;
 
             for (String s : lineas) {
                 String c = s.trim();
-                if (c.isEmpty()) continue;
+                
+                // AQUÍ ESTÁ LA MAGIA: Si la línea está vacía, la convertimos en "E" 
+                // para que nuestro MotorEvaluacion la entienda como épsilon (cadena vacía)
+                if (c.isEmpty()) {
+                    c = "E";
+                }
+                
+                hayCadenas = true;
+                
+                // Procesamos la cadena en el motor
                 ResultadoEvaluacion res = controlador.getMotor().procesarCadena(controlador.getAutomataActual(), c);
-                sb.append(res.esAceptada() ? "Aceptada: " : "Rechazada: ").append(c).append("\n");
+                
+                // Para que se vea profesional en la UI, si es "E", imprimimos "ε (vacía)"
+                String cadenaParaMostrar = c.equals("E") ? "ε (vacía)" : c;
+                
+                sb.append(res.esAceptada() ? "Aceptada: " : "Rechazada: ")
+                  .append(cadenaParaMostrar).append("\n");
 
                 // Pasa la cadena evaluada a la pestaña de Trazabilidad
-                controlador.getCbCadenasTraza().addItem(c);
+                controlador.getCbCadenasTraza().addItem(cadenaParaMostrar);
             }
-            txtResultados.setText(sb.toString());
+            
+            if (hayCadenas) {
+                txtResultados.setText(sb.toString());
+            }
         });
 
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 15));

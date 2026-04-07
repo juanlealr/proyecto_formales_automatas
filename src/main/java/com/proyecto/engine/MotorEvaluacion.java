@@ -36,12 +36,20 @@ public class MotorEvaluacion {
      */
     private ResultadoEvaluacion evaluarAFD(Automata automata, String cadena) {
         String estadoActual = automata.getEstadoInicial();
+
+        // Manejo explícito de la cadena vacía (épsilon)
+        // Acepta si está literalmente vacía, o si se usan los comodines "E" o "ε"
+        if (cadena == null || cadena.isEmpty() || cadena.equalsIgnoreCase("E") || cadena.equals("ε")) {
+            boolean esAceptada = automata.getEstadosAceptacion().contains(estadoActual);
+            String estadoTraza = esAceptada ? "Aceptada" : "Rechazada";
+            return new ResultadoEvaluacion(esAceptada, "Cadena vacía (ε) " + estadoTraza + " en el estado inicial: " + estadoActual + "\n");
+        }
+
         StringBuilder traza = new StringBuilder();
         String[] arregloSimbolos = cadena.split("");
         boolean esAceptada = false;
 
         for (String simboloActual : arregloSimbolos) {
-
             if (!simboloActual.isEmpty() && !automata.getAlfabeto().contains(simboloActual)) {
                 return new ResultadoEvaluacion(false, "Error: El símbolo '" + simboloActual + "' no pertenece al alfabeto.\n");
             }
@@ -51,14 +59,10 @@ public class MotorEvaluacion {
             boolean transicionEncontrada = false;
 
             for (Transicion transicion : automata.getTransiciones()) {
-
                 if (transicion.estadoOrigen().equals(estadoActual) && transicion.simbolo().equals(simboloActual)) {
-                    
                     traza.append("( ").append(estadoActual).append(", ").append(simboloActual).append(" ) -> ").append(transicion.estadoDestino()).append("\n");
-                    
                     estadoActual = transicion.estadoDestino();
                     transicionEncontrada = true;
-
                     break; 
                 }
             }
@@ -95,9 +99,15 @@ public class MotorEvaluacion {
      * @return Un objeto {@link ResultadoEvaluacion} indicando si fue aceptada y la traza del camino ganador.
      */
     private ResultadoEvaluacion evaluarAFN(Automata automata, String cadena) {
+        // Manejo explícito de la cadena vacía (épsilon)
+        if (cadena == null || cadena.isEmpty() || cadena.equalsIgnoreCase("E") || cadena.equals("ε")) {
+            boolean esAceptada = automata.getEstadosAceptacion().contains(automata.getEstadoInicial());
+            String estadoTraza = esAceptada ? "Aceptada" : "Rechazada";
+            return new ResultadoEvaluacion(esAceptada, "Cadena vacía (ε) " + estadoTraza + " en el estado inicial: " + automata.getEstadoInicial() + "\n");
+        }
+
         String[] arregloSimbolos = cadena.split("");
         for (String simboloActual : arregloSimbolos) {
-
             if (!simboloActual.isEmpty() && !automata.getAlfabeto().contains(simboloActual)) {
                 return new ResultadoEvaluacion(false, "Error: El símbolo '" + simboloActual + "' no pertenece al alfabeto.\n");
             }
